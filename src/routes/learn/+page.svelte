@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { tutorials } from '$lib/tutorials';
+	import { base } from '$app/paths';
 </script>
 
 <div class="mx-auto max-w-7xl px-4 py-12">
@@ -13,7 +14,7 @@
 	<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 		{#each tutorials as tutorial, index}
 			<a
-				href="/learn/{tutorial.slug}"
+				href="{base}/learn/{tutorial.slug}"
 				class="card-hover group relative rounded-xl border border-[var(--color-border)] bg-[var(--color-panel)] p-6 transition-colors hover:border-[var(--color-accent)]"
 			>
 				<div class="absolute -left-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-ink)] text-sm font-bold text-white">
@@ -69,7 +70,7 @@
 			Try the playground to write and test ink code without following a structured lesson.
 		</p>
 		<a
-			href="/playground"
+			href="{base}/playground"
 			class="inline-flex items-center gap-2 rounded-lg bg-[var(--color-accent)] px-6 py-2.5 font-semibold text-white transition-colors hover:bg-[var(--color-accent-dim)]"
 		>
 			<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

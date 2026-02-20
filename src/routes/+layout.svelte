@@ -1,6 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { page } from '$app/state';
+	import { base } from '$app/paths';
 
 	let { children } = $props();
 
@@ -19,7 +20,7 @@
 <div class="flex min-h-screen flex-col">
 	<header class="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-sm">
 		<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-			<a href="/" class="flex items-center gap-2 text-xl font-semibold text-[var(--color-text)] transition-colors hover:text-[var(--color-accent)]">
+			<a href="{base}/" class="flex items-center gap-2 text-xl font-semibold text-[var(--color-text)] transition-colors hover:text-[var(--color-accent)]">
 				<svg class="h-6 w-6 text-[var(--color-ink)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
 				</svg>
@@ -29,9 +30,9 @@
 			<nav class="flex items-center gap-1">
 				{#each navLinks as link}
 					<a
-						href={link.href}
+						href="{base}{link.href}"
 						class="rounded-lg px-4 py-2 text-sm font-medium transition-colors
-							{page.url.pathname === link.href || (link.href !== '/' && page.url.pathname.startsWith(link.href))
+							{page.url.pathname === base + link.href || (link.href !== '/' && page.url.pathname.startsWith(base + link.href))
 								? 'bg-[var(--color-panel)] text-[var(--color-accent)]'
 								: 'text-[var(--color-text-dim)] hover:bg-[var(--color-panel)] hover:text-[var(--color-text)]'}"
 					>

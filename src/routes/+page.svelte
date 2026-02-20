@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tutorials } from '$lib/tutorials';
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 
 	let video: HTMLVideoElement;
 	let videoOpacity = $state(1);
@@ -40,7 +41,7 @@
 			class="h-full w-full object-cover transition-opacity duration-300"
 			style="opacity: {videoOpacity}"
 		>
-			<source src="/ink.mp4" type="video/mp4" />
+			<source src="{base}/ink.mp4" type="video/mp4" />
 		</video>
 	</div>
 	<div class="absolute inset-0 bg-gradient-to-b from-[var(--color-bg)]/80 via-[var(--color-bg)]/60 to-[var(--color-bg)]"></div>
@@ -66,7 +67,7 @@
 
 		<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
 			<a
-				href="/learn"
+				href="{base}/learn"
 				class="group inline-flex items-center gap-2 rounded-lg bg-[var(--color-ink)] px-8 py-3 text-lg font-semibold text-white transition-all hover:bg-[var(--color-ink-dim)] animate-pulse-glow"
 			>
 				Start Learning
@@ -75,7 +76,7 @@
 				</svg>
 			</a>
 			<a
-				href="/playground"
+				href="{base}/playground"
 				class="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-panel)] px-8 py-3 text-lg font-semibold text-[var(--color-text)] transition-all hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
 			>
 				<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +146,7 @@
 				<p class="mt-2 text-[var(--color-text-dim)]">Learn by doing with hands-on lessons</p>
 			</div>
 			<a
-				href="/learn"
+				href="{base}/learn"
 				class="text-sm text-[var(--color-accent)] hover:underline"
 			>
 				View all tutorials &rarr;
@@ -155,7 +156,7 @@
 		<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
 			{#each tutorials.slice(0, 3) as tutorial}
 				<a
-					href="/learn/{tutorial.slug}"
+					href="{base}/learn/{tutorial.slug}"
 					class="card-hover group rounded-xl border border-[var(--color-border)] bg-[var(--color-panel)] p-6 transition-colors hover:border-[var(--color-accent)]"
 				>
 					<div class="mb-3 flex items-center justify-between">
@@ -247,13 +248,13 @@ You find <span class="text-[var(--color-warning)]">{"{"}</span>gold<span class="
 		</p>
 		<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
 			<a
-				href="/learn/basics"
+				href="{base}/learn/basics"
 				class="rounded-lg bg-[var(--color-ink)] px-8 py-3 font-semibold text-white transition-all hover:bg-[var(--color-ink-dim)]"
 			>
 				Begin Tutorial
 			</a>
 			<a
-				href="/playground"
+				href="{base}/playground"
 				class="rounded-lg border border-[var(--color-border)] px-8 py-3 font-semibold text-[var(--color-text)] transition-all hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
 			>
 				Explore Playground

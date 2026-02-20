@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 	import { getTutorial, tutorials, type Tutorial, type TutorialSection } from '$lib/tutorials';
 	import { ink } from '$lib/stores/ink';
 	import Editor from '$lib/components/Editor.svelte';
@@ -66,7 +67,7 @@
 		<aside class="w-72 flex-shrink-0 border-r border-[var(--color-border)] bg-[var(--color-bg-alt)]">
 			<div class="flex h-full flex-col">
 				<div class="border-b border-[var(--color-border)] p-4">
-					<a href="/learn" class="mb-2 flex items-center gap-1 text-xs text-[var(--color-text-dim)] hover:text-[var(--color-accent)]">
+					<a href="{base}/learn" class="mb-2 flex items-center gap-1 text-xs text-[var(--color-text-dim)] hover:text-[var(--color-accent)]">
 						<svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
 						</svg>
@@ -102,7 +103,7 @@
 				<div class="border-t border-[var(--color-border)] p-4">
 					{#if prevTutorial}
 						<a
-							href="/learn/{prevTutorial.slug}"
+							href="{base}/learn/{prevTutorial.slug}"
 							class="mb-2 flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm text-[var(--color-text-dim)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
 						>
 							<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -113,7 +114,7 @@
 					{/if}
 					{#if nextTutorial}
 						<a
-							href="/learn/{nextTutorial.slug}"
+							href="{base}/learn/{nextTutorial.slug}"
 							class="flex items-center justify-between gap-2 rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm text-[var(--color-text-dim)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
 						>
 							{nextTutorial.title}
@@ -210,7 +211,7 @@
 
 				{#if isLastSection && nextTutorial}
 					<a
-						href="/learn/{nextTutorial.slug}"
+						href="{base}/learn/{nextTutorial.slug}"
 						class="flex items-center gap-2 rounded-lg bg-[var(--color-ink)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-ink-dim)]"
 					>
 						{nextTutorial.title}
@@ -220,7 +221,7 @@
 					</a>
 				{:else if isLastSection}
 					<a
-						href="/learn"
+						href="{base}/learn"
 						class="flex items-center gap-2 rounded-lg bg-[var(--color-success)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-success-dim)]"
 					>
 						Complete!
@@ -246,7 +247,7 @@
 	<div class="flex h-[calc(100vh-65px)] items-center justify-center">
 		<div class="text-center">
 			<h1 class="mb-4 text-2xl font-bold">Tutorial not found</h1>
-			<a href="/learn" class="text-[var(--color-accent)] hover:underline">
+			<a href="{base}/learn" class="text-[var(--color-accent)] hover:underline">
 				Back to tutorials
 			</a>
 		</div>

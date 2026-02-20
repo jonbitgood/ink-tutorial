@@ -1,4 +1,5 @@
 import type { InkWasm, CompileResult, Choice } from './types';
+import { base } from '$app/paths';
 
 declare global {
 	interface Window {
@@ -41,7 +42,7 @@ export async function loadInkWasm(): Promise<InkWasm> {
 		if (typeof window.Go === 'undefined') {
 			await new Promise<void>((resolve, reject) => {
 				const script = document.createElement('script');
-				script.src = '/wasm/wasm_exec.js';
+				script.src = `${base}/wasm/wasm_exec.js`;
 				script.onload = () => resolve();
 				script.onerror = () => reject(new Error('Failed to load wasm_exec.js'));
 				document.head.appendChild(script);
@@ -49,7 +50,7 @@ export async function loadInkWasm(): Promise<InkWasm> {
 		}
 
 		const go = new window.Go();
-		const result = await WebAssembly.instantiateStreaming(fetch('/wasm/ink.wasm'), go.importObject);
+		const result = await WebAssembly.instantiateStreaming(fetch(`${base}/wasm/ink.wasm`), go.importObject);
 		go.run(result.instance);
 
 		// Wait for the functions to be registered
