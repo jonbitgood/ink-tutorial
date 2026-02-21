@@ -156,18 +156,18 @@ The door opens to reveal an old wizard.
 Welcome to the adventure!
 Where would you like to go?
 
-* [Visit the castle] -> castle
-* [Explore the forest] -> forest
-* [Go to the tavern] -> tavern
++ [Visit the castle] -> castle.entrance
++ [Explore the forest] -> forest
++ [Go to the tavern] -> tavern
 
 === castle ===
 = entrance
 You arrive at the castle gates.
 Guards eye you suspiciously.
 
-* [Request an audience] -> throne_room
-* [Sneak around back] -> gardens
-* [Leave] -> start
++ [Request an audience] -> castle.throne_room
++ [Sneak around back] -> castle.gardens
++ [Leave] -> start
 
 = throne_room
 The king sits upon his throne.
@@ -177,9 +177,9 @@ The king sits upon his throne.
     "Then seek the dragon in the eastern mountains."
     -> END
 
-* ["Just passing through."]
++ ["Just passing through."]
     "Then pass through quickly."
-    -> entrance
+    -> castle.entrance
 
 = gardens
 You find yourself in the royal gardens.
@@ -190,9 +190,9 @@ Beautiful flowers surround you.
     "Halt! Flower thief!"
     -> END
 
-* [Admire them peacefully]
++ [Admire them peacefully]
     You enjoy the serene beauty.
-    -> entrance
+    -> castle.entrance
 
 === forest ===
 Tall trees surround you.
@@ -206,7 +206,7 @@ The path splits in two.
     You find a peaceful stream.
     -> END
 
-* [Return] -> start
++ [Return] -> start
 
 === tavern ===
 The tavern is warm and lively.
@@ -220,7 +220,7 @@ A bard plays in the corner.
     "Have you heard the tale of the crystal caves?"
     -> END
 
-* [Leave] -> start`
++ [Leave] -> start`
 	},
 
 	functions: {
@@ -236,18 +236,18 @@ VAR max_health = 100
 {health > max_health:
     ~ health = max_health
 }
-~ return health
+~ return
 
 === function damage(amount) ===
 ~ health = health - amount
 {health < 0:
     ~ health = 0
 }
-~ return health
+~ return
 
 === function show_health ===
 Health: {health}/{max_health}
-~return
+~ return
 
 === start ===
 You enter the dungeon.
@@ -279,7 +279,7 @@ You find a health potion.
 === boss ===
 A dragon blocks your path!
 
-* [Attack!]
++ [Attack!]
     ~ damage(50)
     {health <= 0:
         You have fallen...
@@ -291,7 +291,7 @@ A dragon blocks your path!
 
 * [Flee]
     You escape with your life.
-    Final {show_health()}
+    {show_health()}
     -> END`
 	},
 
