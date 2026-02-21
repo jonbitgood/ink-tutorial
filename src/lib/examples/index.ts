@@ -97,15 +97,10 @@ A goblin blocks your path!
     You flee from the goblin.
     -> END
 
-* [Try to bribe it]
-    {gold >= 5:
-        You offer 5 gold and the goblin lets you pass.
-        ~ gold = gold - 5
-        -> END
-    - else:
-        You don't have enough gold to bribe it!
-        -> adventure
-    }`
+* {gold >= 5} [Try to bribe it]
+    You offer 5 gold and the goblin lets you pass.
+    ~ gold = gold - 5
+    -> END`
 	},
 
 	sequences: {
