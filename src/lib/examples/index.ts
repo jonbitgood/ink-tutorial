@@ -108,34 +108,26 @@ A goblin blocks your path!
 		source: `// Demonstrating sequences and cycles
 VAR times_knocked = 0
 
+-> door
+
 === door ===
 You stand before a mysterious door.
 
-* [Knock on the door]
++ {times_knocked < 4} [Knock on the door]
     ~ times_knocked = times_knocked + 1
     You knock on the door.
 
-    // Stopping sequence - different response each time, then stops
-    {times_knocked:
-        - 1: No answer.
-        - 2: Still no answer.
-        - 3: You hear shuffling inside.
-        - else: The door creaks open slightly...
-    }
+    // Stopping sequence - shows different text each time, stays on last item
+    {No answer.|Still no answer.|You hear shuffling inside.|The door creaks open slightly...}
 
-    {times_knocked < 4:
-        -> door
-    - else:
+    {times_knocked >= 4:
         -> inside
     }
+    -> door
 
-* [Look through the keyhole]
-    // Cycle - loops forever
-    {cycle:
-        - You see darkness.
-        - You glimpse a flickering light.
-        - You see a shadow move.
-    }
++ [Look through the keyhole]
+    // Cycle - loops forever through items
+    {& You see darkness. | You glimpse a flickering light. | You see a shadow move. }
     -> door
 
 * [Give up] -> END
