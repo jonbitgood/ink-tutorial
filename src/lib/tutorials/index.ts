@@ -167,7 +167,7 @@ You search the dusty attic.
   Just spiders.
   -> search_room
 
-*   ->
+*   []
     You've searched everywhere.
     Time to move on.
     -> END`,
@@ -522,17 +522,17 @@ VAR items = 0
 === shop ===
 You have {coins} coins.
 
-* {coins >= 25} [Buy sword (25 coins)]
++ {coins >= 25} [Buy sword (25 coins)]
   ~ coins = coins - 25
   ~ items = items + 1
   -> shop
 
-* {coins >= 10} [Buy potion (10 coins)]
++ {coins >= 10} [Buy potion (10 coins)]
   ~ coins = coins - 10
   ~ items = items + 1
   -> shop
 
-* [Gamble (costs 10 coins)]
++ {coins >= 10} [Gamble (costs 10 coins)]
   ~ coins = coins - 10
   ~ temp winnings = RANDOM(0, 30)
   You won {winnings} coins!
@@ -752,7 +752,7 @@ VAR max_health = 100
 ~ return
 
 === function show_health ===
-[Health: {health}/{max_health}]
+Health: {health}/{max_health}
 ~ return
 
 === start ===
@@ -773,13 +773,13 @@ You enter the dungeon.
 You find a healing fountain.
 
 * [Drink deeply]
-  {heal(50)}
+  ~ heal(50)
   You feel refreshed!
   {show_health()}
   -> END
 
 * [Take a sip]
-  {heal(20)}
+  ~ heal(20)
   A little better.
   {show_health()}
   -> END`
