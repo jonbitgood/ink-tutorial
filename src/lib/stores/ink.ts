@@ -1,13 +1,42 @@
 import { writable, get } from 'svelte/store';
-import type { InkState, Choice, InkWasm } from '$lib/wasm/types';
-import { loadInkWasm, getInkWasm } from '$lib/wasm/ink';
+import { Compiler, CompilerOptions } from 'inkjs/full';
+import type { Story } from 'inkjs';
+
+export interface Choice {
+	text: string;
+	index: number;
+}
+
+export interface InkState {
+	source: string;
+	errors: string[];
+	text: string[];
+	choices: Choice[];
+	tags: string[];
+	variables: Record<string, unknown>;
+	hasEnded: boolean;
+	isRunning: boolean;
+	isLoading: boolean;
+}
 
 const STORAGE_KEY = 'ink-tutorial-source';
+
+function extractVariables(story: Story, source: string): Record<string, unknown> {
+	const varNames = [...source.matchAll(/^VAR\s+(\w+)/gm)].map((m) => m[1]);
+	const vars: Record<string, unknown> = {};
+	for (const name of varNames) {
+		try {
+			vars[name] = story.variablesState[name];
+		} catch {
+			// skip unknown variables
+		}
+	}
+	return vars;
+}
 
 function createInkStore() {
 	const initialState: InkState = {
 		source: '',
-		compiled: null,
 		errors: [],
 		text: [],
 		choices: [],
@@ -15,169 +44,100 @@ function createInkStore() {
 		variables: {},
 		hasEnded: false,
 		isRunning: false,
-		isLoading: true,
-		storyId: null
+		isLoading: false
 	};
 
-	const { subscribe, set, update } = writable<InkState>(initialState);
+	const { subscribe, update } = writable<InkState>(initialState);
 
-	let wasm: InkWasm | null = null;
+	let story: Story | null = null;
+
+	function continueStory() {
+		if (!story) return;
+
+		const state = get({ subscribe });
+		const newText: string[] = [...state.text];
+		let currentTags: string[] = [];
+
+		while (story.canContinue) {
+			const line = story.Continue();
+			if (line && line.trim()) {
+				newText.push(line.trim());
+			}
+			currentTags = story.currentTags ?? [];
+		}
+
+		const choices: Choice[] = (story.currentChoices ?? []).map((c) => ({
+			text: c.text,
+			index: c.index
+		}));
+		const hasEnded = !story.canContinue && choices.length === 0;
+		const variables = extractVariables(story, state.source);
+
+		update((s) => ({ ...s, text: newText, choices, tags: currentTags, variables, hasEnded }));
+	}
 
 	return {
 		subscribe,
 
-		async init() {
-			try {
-				wasm = await loadInkWasm();
-				// Load saved source from localStorage
-				if (typeof localStorage !== 'undefined') {
-					const saved = localStorage.getItem(STORAGE_KEY);
-					if (saved) {
-						update((s) => ({ ...s, source: saved, isLoading: false }));
-						return;
-					}
+		async init(): Promise<void> {
+			if (typeof localStorage !== 'undefined') {
+				const saved = localStorage.getItem(STORAGE_KEY);
+				if (saved) {
+					update((s) => ({ ...s, source: saved }));
 				}
-				update((s) => ({ ...s, isLoading: false }));
-			} catch (err) {
-				console.error('Failed to load Ink WASM:', err);
-				update((s) => ({
-					...s,
-					isLoading: false,
-					errors: ['Failed to load Ink compiler. Please refresh the page.']
-				}));
 			}
 		},
 
 		setSource(source: string) {
 			update((s) => ({ ...s, source }));
-			// Save to localStorage
 			if (typeof localStorage !== 'undefined') {
 				localStorage.setItem(STORAGE_KEY, source);
 			}
 		},
 
-		compile(): boolean {
+		compileAndRun() {
 			const state = get({ subscribe });
-			if (!wasm) {
-				update((s) => ({ ...s, errors: ['WASM not loaded'] }));
-				return false;
-			}
-
-			// Destroy existing story if any
-			if (state.storyId !== null) {
-				wasm.destroy(state.storyId);
-			}
-
-			const result = wasm.compile(state.source);
-
-			if (result.errors && result.errors.length > 0) {
-				update((s) => ({
-					...s,
-					errors: result.errors!,
-					compiled: null,
-					storyId: null,
-					isRunning: false
-				}));
-				return false;
-			}
-
+			story = null;
 			update((s) => ({
 				...s,
-				compiled: result.json,
-				errors: []
-			}));
-
-			return true;
-		},
-
-		run() {
-			const state = get({ subscribe });
-			if (!wasm || !state.compiled) {
-				return;
-			}
-
-			// Destroy existing story if any
-			if (state.storyId !== null) {
-				wasm.destroy(state.storyId);
-			}
-
-			const storyId = wasm.createStory(state.compiled);
-			if (storyId < 0) {
-				update((s) => ({
-					...s,
-					errors: ['Failed to create story from compiled JSON'],
-					storyId: null,
-					isRunning: false
-				}));
-				return;
-			}
-
-			update((s) => ({
-				...s,
-				storyId,
+				errors: [],
 				text: [],
 				choices: [],
 				tags: [],
 				variables: {},
 				hasEnded: false,
-				isRunning: true,
-				errors: []
+				isRunning: false
 			}));
 
-			this.continueStory();
-		},
-
-		compileAndRun() {
-			if (this.compile()) {
-				this.run();
-			}
-		},
-
-		continueStory() {
-			const state = get({ subscribe });
-			if (!wasm || state.storyId === null) return;
-
-			const newText: string[] = [...state.text];
-			let currentTags: string[] = [];
-
-			while (wasm.canContinue(state.storyId)) {
-				const text = wasm.continue(state.storyId);
-				if (text.trim()) {
-					newText.push(text);
+			const errors: string[] = [];
+			try {
+				const compiler = new Compiler(
+					state.source,
+					new CompilerOptions(null, [], false, (message: string) => {
+						errors.push(message);
+					})
+				);
+				story = compiler.Compile();
+			} catch (e) {
+				if (errors.length === 0) {
+					errors.push(e instanceof Error ? e.message : String(e));
 				}
-				currentTags = wasm.getTags(state.storyId);
+				update((s) => ({ ...s, errors }));
+				return;
 			}
 
-			const choices = wasm.getChoices(state.storyId);
-			const hasEnded = wasm.hasEnded(state.storyId);
-			const variables = wasm.getVariables(state.storyId);
-
-			update((s) => ({
-				...s,
-				text: newText,
-				choices,
-				tags: currentTags,
-				variables,
-				hasEnded
-			}));
-		},
-
-		choose(index: number) {
-			const state = get({ subscribe });
-			if (!wasm || state.storyId === null) return;
-
-			const success = wasm.choose(state.storyId, index);
-			if (success) {
-				this.continueStory();
+			if (errors.length > 0) {
+				update((s) => ({ ...s, errors }));
+				return;
 			}
+
+			update((s) => ({ ...s, isRunning: true, errors: [] }));
+			continueStory();
 		},
 
 		reset() {
-			const state = get({ subscribe });
-			if (!wasm || state.storyId === null) return;
-
-			wasm.reset(state.storyId);
-
+			if (!story) return;
+			story.ResetState();
 			update((s) => ({
 				...s,
 				text: [],
@@ -186,19 +146,13 @@ function createInkStore() {
 				variables: {},
 				hasEnded: false
 			}));
-
-			this.continueStory();
+			continueStory();
 		},
 
 		stop() {
-			const state = get({ subscribe });
-			if (wasm && state.storyId !== null) {
-				wasm.destroy(state.storyId);
-			}
-
+			story = null;
 			update((s) => ({
 				...s,
-				storyId: null,
 				text: [],
 				choices: [],
 				tags: [],
@@ -208,26 +162,27 @@ function createInkStore() {
 			}));
 		},
 
+		choose(index: number) {
+			if (!story) return;
+			story.ChooseChoiceIndex(index);
+			continueStory();
+		},
+
 		saveState(): string | null {
-			const state = get({ subscribe });
-			if (!wasm || state.storyId === null) return null;
-			return wasm.getState(state.storyId);
+			if (!story) return null;
+			return story.state.ToJson();
 		},
 
 		loadState(savedState: string): boolean {
-			const state = get({ subscribe });
-			if (!wasm || state.storyId === null) return false;
-
-			const success = wasm.loadState(state.storyId, savedState);
-			if (success) {
-				// Clear current text and continue from loaded state
-				update((s) => ({
-					...s,
-					text: ['[State loaded]']
-				}));
-				this.continueStory();
+			if (!story) return false;
+			try {
+				story.state.LoadJson(savedState);
+				update((s) => ({ ...s, text: ['[State loaded]'] }));
+				continueStory();
+				return true;
+			} catch {
+				return false;
 			}
-			return success;
 		}
 	};
 }

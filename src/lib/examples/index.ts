@@ -295,6 +295,59 @@ A dragon blocks your path!
     -> END`
 	},
 
+	whack_a_gnome: {
+		name: 'Whack-a-Gnome',
+		source: `// Whack-a-Gnome — a thieving gnome raids your garden!
+// Demonstrates once-only choices, cycles, shuffles, and sequences.
+VAR stolen = 0
+
+-> garden
+
+=== garden ===
+{You heft the mallet and creep into the garden.|{~Missed! He was right there!|Nothing - just a garden ornament, mocking you.|No good! He's too quick!|Bonk! Square on the pointy hat! -> caught}}
+The {&gnome|{&wretched|blasted|infernal} {&little thief|garden pest|rascal|menace}} is {lurking behind the roses|hiding in the compost heap|skulking through the cabbages|somewhere by the shed|definitely in the begonias}. <>
+{!He can't hide forever!|This is the last time he pillages your garden!}
+
+*   [{&Swing|Lunge|Check} the rose bush]
+        ~ stolen = stolen + 1
+        He snatches your {~trowel|good gloves|best dibber} and scarpers!
+        -> garden
+
+*   [{&Rush|Whallop|Bash} the compost heap]
+        ~ stolen = stolen + 1
+        Your {~watering can|garden fork|bag of compost} vanishes into his little sack!
+        -> garden
+
+*   [{&Try|Smash|Search} the cabbage patch]
+        ~ stolen = stolen + 1
+        He makes off with your {~prize marrow|seed packets|garden shears}!
+        -> garden
+
+*   [{&Thump|Pound|Check} near the fence]
+        ~ stolen = stolen + 1
+        Your {~secateurs|string and canes|favourite pot} disappear under his arm!
+        -> garden
+
+*   [{&Peek|Look|Investigate} behind the shed]
+        ~ stolen = stolen + 1
+        He pockets your {~spare trowel|plant labels|lucky gnome ornament (the irony!)} and legs it!
+        -> garden
+
+*   ->
+        You collapse, wheezing, among the turnips. The gnome tips his hat and vanishes with {stolen} stolen {stolen == 1: item|items}.
+        -> END
+
+=== caught ===
+BONK! The gnome goes cross-eyed and topples into the petunias.
+{stolen > 0:
+    As he staggers off, he drops {stolen} of your {stolen == 1: thing|things} in the flowerbed.
+    A win, of sorts.
+- else:
+    "Robbed nothing and got a walloping," you say, watching him go. "Justice."
+}
+-> END`
+	},
+
 	shopping: {
 		name: 'Shopping Example',
 		source: `// A simple shopping scenario
